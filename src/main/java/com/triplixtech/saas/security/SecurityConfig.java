@@ -22,17 +22,21 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 
         http
+                // 🔥 disable CSRF for REST APIs
                 .csrf(csrf -> csrf.disable())
 
+                // 🔥 stateless session (JWT based)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
+                // 🔥 API security rules
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
+                // 🔥 add JWT filter before Spring Security auth filter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

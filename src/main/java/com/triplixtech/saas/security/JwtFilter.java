@@ -1,9 +1,7 @@
 package com.triplixtech.saas.security;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -25,12 +23,12 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (header != null && header.startsWith("Bearer ")) {
 
+            String token = header.substring(7);
+
             try {
-                String token = header.substring(7);
                 String email = JwtUtil.extractEmail(token);
 
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
+                if (email != null) {
                     UsernamePasswordAuthenticationToken auth =
                             new UsernamePasswordAuthenticationToken(
                                     email,
@@ -42,9 +40,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 }
 
             } catch (Exception e) {
-                // Invalid token → block request
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.getWriter().write("Invalid or expired token");
                 return;
             }
         }

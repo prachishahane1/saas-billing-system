@@ -1,6 +1,7 @@
 package com.triplixtech.saas.security;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
 import java.security.Key;
@@ -8,12 +9,9 @@ import java.util.Date;
 
 public class JwtUtil {
 
-    private static final String SECRET =
-            "mysecretkeymysecretkeymysecretkey123456";
+    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
 
-    private static final Key key =
-            Keys.hmacShaKeyFor(SECRET.getBytes());
-
+    // CREATE TOKEN
     public static String generateToken(String email) {
         return Jwts.builder()
                 .setSubject(email)
@@ -23,6 +21,7 @@ public class JwtUtil {
                 .compact();
     }
 
+    // EXTRACT EMAIL
     public static String extractEmail(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
