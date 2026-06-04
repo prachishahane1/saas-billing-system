@@ -2,7 +2,6 @@ package com.triplixtech.saas.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,12 +17,22 @@ public class Invoice {
     private Long invoiceId;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
+    @ManyToOne
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
+
     private String invoiceNumber;
 
-    private LocalDateTime generatedAt;
+    private Double amount;
 
-    private Double totalAmount;
+    private LocalDateTime generatedDate;
+
+    private String invoiceStatus; // PAID, UNPAID, VOID
 }

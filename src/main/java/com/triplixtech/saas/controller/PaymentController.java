@@ -3,6 +3,7 @@ package com.triplixtech.saas.controller;
 import com.triplixtech.saas.entity.Payment;
 import com.triplixtech.saas.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,22 +16,42 @@ public class PaymentController {
     private PaymentService paymentService;
 
     @PostMapping
-    public Payment create(@RequestBody Payment payment){
-        return paymentService.savePayment(payment);
+    public ResponseEntity<Payment> create(@RequestBody Payment payment) {
+        return ResponseEntity.ok(paymentService.savePayment(payment));
     }
 
     @GetMapping
-    public List<Payment> getAll(){
-        return paymentService.getAll();
+    public ResponseEntity<List<Payment>> getAll() {
+        return ResponseEntity.ok(paymentService.getAll());
     }
 
     @GetMapping("/{id}")
-    public Payment getById(@PathVariable Long id){
-        return paymentService.getById(id);
+    public ResponseEntity<Payment> getById(@PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.getById(id));
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Payment>> getByUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(paymentService.getByUser(userId));
     }
 
     @GetMapping("/subscription/{subId}")
-    public List<Payment> getBySubscription(@PathVariable Long subId){
-        return paymentService.getBySubscription(subId);
+    public ResponseEntity<List<Payment>> getBySubscription(@PathVariable Long subId) {
+        return ResponseEntity.ok(paymentService.getBySubscription(subId));
+    }
+
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<Payment> completePayment(@PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.completePayment(id));
+    }
+
+    @PostMapping("/{id}/fail")
+    public ResponseEntity<Payment> failPayment(@PathVariable Long id, @RequestParam(required = false) String reason) {
+        return ResponseEntity.ok(paymentService.failPayment(id, reason));
+    }
+
+    @PostMapping("/{id}/refund")
+    public ResponseEntity<Payment> refundPayment(@PathVariable Long id) {
+        return ResponseEntity.ok(paymentService.refundPayment(id));
     }
 }

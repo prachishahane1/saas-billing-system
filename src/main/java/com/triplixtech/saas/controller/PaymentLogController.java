@@ -3,6 +3,7 @@ package com.triplixtech.saas.controller;
 import com.triplixtech.saas.entity.PaymentLog;
 import com.triplixtech.saas.service.PaymentLogService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,17 +16,17 @@ public class PaymentLogController {
     private PaymentLogService paymentLogService;
 
     @PostMapping
-    public PaymentLog create(@RequestBody PaymentLog log){
-        return paymentLogService.saveLog(log);
+    public ResponseEntity<PaymentLog> create(@RequestBody PaymentLog log) {
+        return ResponseEntity.ok(paymentLogService.saveLog(log));
     }
 
     @GetMapping
-    public List<PaymentLog> getAll(){
-        return paymentLogService.getAll();
+    public ResponseEntity<List<PaymentLog>> getAll() {
+        return ResponseEntity.ok(paymentLogService.getAll());
     }
 
     @GetMapping("/payment/{paymentId}")
-    public List<PaymentLog> getByPayment(@PathVariable Long paymentId){
-        return paymentLogService.getByPayment(paymentId);
+    public ResponseEntity<List<PaymentLog>> getByPayment(@PathVariable Long paymentId) {
+        return ResponseEntity.ok(paymentLogService.getByPayment(paymentId));
     }
 }

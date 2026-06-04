@@ -2,7 +2,6 @@ package com.triplixtech.saas.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -18,14 +17,24 @@ public class Payment {
     private Long paymentId;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @ManyToOne
     @JoinColumn(name = "subscription_id")
     private Subscription subscription;
 
     private Double amount;
 
-    private String method; // UPI, CARD, NETBANKING
-
-    private String status; // SUCCESS, FAILED, PENDING
-
     private LocalDateTime paymentDate;
+
+    private String status; // SUCCESS, FAILED, PENDING, REFUNDED
+
+    private String currency; // USD, INR
+
+    private String transactionId;
+
+    private String paymentGateway; // STRIPE, PAYPAL, RAZORPAY
+
+    private String failureReason;
 }

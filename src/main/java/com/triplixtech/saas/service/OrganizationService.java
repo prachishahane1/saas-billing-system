@@ -20,4 +20,13 @@ public class OrganizationService {
     public List<Organization> getAllOrganizations() {
         return organizationRepository.findAll();
     }
+
+    public Organization getById(Long id) {
+        return organizationRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+    }
+
+    public void deleteOrganization(Long id) {
+        organizationRepository.deleteById(id);
+    }
 }

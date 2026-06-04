@@ -2,7 +2,6 @@ package com.triplixtech.saas.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 
 @Entity
@@ -21,9 +20,9 @@ public class PaymentLog {
     @JoinColumn(name = "payment_id")
     private Payment payment;
 
-    private String action; // INITIATED, SUCCESS, FAILED
+    private String status; // INITIATED, SUCCESS, FAILED, REFUNDED
 
     private String message;
 
-    private LocalDateTime timestamp;
+    private LocalDateTime createdAt;
 }

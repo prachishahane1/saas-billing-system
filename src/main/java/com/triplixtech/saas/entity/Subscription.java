@@ -2,8 +2,8 @@ package com.triplixtech.saas.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "subscriptions")
@@ -18,8 +18,8 @@ public class Subscription {
     private Long subscriptionId;
 
     @ManyToOne
-    @JoinColumn(name = "organization_id")
-    private Organization organization;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "plan_id")
@@ -27,7 +27,19 @@ public class Subscription {
 
     private LocalDate startDate;
 
+    private LocalDate trialEndDate;
+
     private LocalDate endDate;
 
-    private String status; // ACTIVE, EXPIRED, CANCELLED
+    private LocalDate renewalDate;
+
+    private String status; // ACTIVE, EXPIRED, CANCELLED, TRIAL
+
+    private String billingCycle; // monthly / yearly
+
+    private Boolean autoRenew;
+
+    private LocalDateTime createdAt;
+
+    private LocalDateTime updatedAt;
 }

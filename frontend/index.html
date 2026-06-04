@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ApexFlow - Subscription & SaaS Billing Hub</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- ChartJS for Analytics Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Custom Style Sheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dark-theme">
+    <div id="app">
+        <!-- Toast Notification Container -->
+        <div id="toast-container" class="toast-container"></div>
+
+        <!-- Loading Indicator Overlay -->
+        <div id="loading-overlay" class="loading-overlay hidden">
+            <div class="spinner"></div>
+            <p>Processing Request...</p>
+        </div>
+
+        <!-- 1. Landing View / Public Landing Pages -->
+        <section id="landing-section" class="view">
+            <header class="public-header">
+                <div class="brand">
+                    <i class="fa-solid fa-bolt logo-icon"></i>
+                    <span class="brand-name">ApexFlow</span>
+                </div>
+                <nav class="public-nav">
+                    <a href="#hero">Home</a>
+                    <a href="#about">About</a>
+                    <a href="#pricing">Pricing</a>
+                </nav>
+                <div class="public-auth-buttons">
+                    <button class="btn btn-secondary btn-sm" onclick="showAuthPage(false)">Sign In</button>
+                    <button class="btn btn-primary btn-sm" onclick="showAuthPage(true)">Register</button>
+                </div>
+            </header>
+
+            <!-- Hero Banner -->
+            <div id="hero" class="hero-banner">
+                <div class="hero-content">
+                    <h1>Automate Your SaaS Subscriptions & Billing</h1>
+                    <p>Deliver smooth payment checkouts, dynamic trial configurations, automated PDF invoices, and real-time tenant analytics in one robust platform.</p>
+                    <div class="hero-actions">
+                        <button class="btn btn-primary" onclick="showAuthPage(true)">
+                            Get Started Free <i class="fa-solid fa-circle-play"></i>
+                        </button>
+                        <a href="#pricing" class="btn btn-secondary">View Plans</a>
+                    </div>
+                </div>
+                <div class="hero-graphic">
+                    <div class="mockup-window">
+                        <div class="mockup-header">
+                            <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+                        </div>
+                        <div class="mockup-body">
+                            <div class="mini-chart-wrapper">
+                                <div class="mini-stat">
+                                    <span>Monthly Revenue</span>
+                                    <strong>$45,820</strong>
+                                </div>
+                                <div class="bar-chart-mock">
+                                    <div class="bar" style="height: 40%"></div>
+                                    <div class="bar" style="height: 60%"></div>
+                                    <div class="bar" style="height: 50%"></div>
+                                    <div class="bar" style="height: 90%"></div>
+                                    <div class="bar" style="height: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- About Section -->
+            <div id="about" class="about-section">
+                <div class="section-title-wrapper">
+                    <h2 class="section-title">Enterprise Billing Infrastructure</h2>
+                    <p class="section-subtitle">Scale your customer management with production-ready subscription lifecycles.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <i class="fa-solid fa-shield-halved feature-icon"></i>
+                        <h3>Role-Based Access</h3>
+                        <p>Detailed authorities mapping across Super Admins, Tenant/Org Admins, and regular users.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-rotate-left feature-icon"></i>
+                        <h3>Subscription Cycles</h3>
+                        <p>Support for 14-day free trials, monthly/yearly cycles, plan upgrades, and renewals.</p>
+                    </div>
+                    <div class="feature-card">
+                        <i class="fa-solid fa-wallet feature-icon"></i>
+                        <h3>Mock Gateways</h3>
+                        <p>Simulate transactions via Stripe, PayPal, and Razorpay with instant refund execution.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Section -->
+            <div id="pricing" class="pricing-section">
+                <div class="section-title-wrapper">
+                    <h2 class="section-title">Flexible Billing Plans</h2>
+                    <p class="section-subtitle">Unlock unlimited revenue mapping. Select your plan below to sign up.</p>
+                </div>
+                <div class="pricing-grid-public" id="pricing-public-grid">
+                    <!-- Loaded dynamically -->
+                </div>
+            </div>
+
+            <footer class="public-footer">
+                <p>&copy; 2026 ApexFlow Billing Hub. All rights reserved.</p>
+            </footer>
+        </section>
+
+        <!-- 2. Auth Section (Login / Sign Up) -->
+        <section id="auth-section" class="view hidden">
+            <div class="auth-container">
+                <div class="auth-card">
+                    <div class="auth-header">
+                        <div class="brand" onclick="showLandingPage()" style="cursor: pointer;">
+                            <i class="fa-solid fa-bolt logo-icon"></i>
+                            <span class="brand-name">ApexFlow</span>
+                        </div>
+                        <h2 id="auth-title">Welcome Back</h2>
+                        <p id="auth-subtitle">Sign in to manage your billing and subscription</p>
+                    </div>
+
+                    <!-- Alert message container -->
+                    <div id="auth-alert" class="alert hidden"></div>
+
+                    <!-- Login Form -->
+                    <form id="login-form">
+                        <div class="form-group">
+                            <label for="login-email"><i class="fa-regular fa-envelope"></i> Email Address</label>
+                            <input type="email" id="login-email" placeholder="name@company.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="login-password"><i class="fa-solid fa-lock"></i> Password</label>
+                            <input type="password" id="login-password" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Sign In <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+
+                        <div class="auth-separator" style="margin: 1.25rem 0; display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">
+                            <span style="flex: 1; border-bottom: 1px solid var(--border-color);"></span>
+                            <span style="margin: 0 0.75rem;">Or Sign In With</span>
+                            <span style="flex: 1; border-bottom: 1px solid var(--border-color);"></span>
+                        </div>
+
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem; align-items: center; margin-bottom: 1.25rem; width: 100%;">
+                            <div id="g_id_onload"
+                                 data-client_id="YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+                                 data-context="signin"
+                                 data-ux_mode="popup"
+                                 data-callback="handleGoogleLoginResponse"
+                                 data-auto_prompt="false">
+                            </div>
+                            <div class="g_id_signin"
+                                 data-type="standard"
+                                 data-shape="rectangular"
+                                 data-theme="filled_black"
+                                 data-text="signin_with"
+                                 data-size="large"
+                                 data-logo_alignment="left"
+                                 style="width: 100%; display: flex; justify-content: center;">
+                            </div>
+                            <button type="button" class="btn btn-secondary btn-block btn-sm" onclick="simulateGoogleLogin()" style="background-color: rgba(255,255,255,0.02); border-color: var(--border-color); display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-weight: 500;">
+                                <i class="fa-brands fa-google" style="color: #ea4335;"></i> Simulate Google Login
+                            </button>
+                        </div>
+
+                        <p class="auth-toggle">
+                            Don't have an account? <a href="#" id="go-to-signup">Create one now</a>
+                        </p>
+                    </form>
+
+                    <!-- Signup Form -->
+                    <form id="signup-form" class="hidden">
+                        <div class="form-group">
+                            <label for="signup-name"><i class="fa-regular fa-user"></i> Full Name</label>
+                            <input type="text" id="signup-name" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-email"><i class="fa-regular fa-envelope"></i> Email Address</label>
+                            <input type="email" id="signup-email" placeholder="name@company.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-org"><i class="fa-regular fa-building"></i> Organization Name (Optional)</label>
+                            <input type="text" id="signup-org" placeholder="Acme Corp">
+                        </div>
+                        <div class="form-group">
+                            <label for="signup-password"><i class="fa-solid fa-lock"></i> Password</label>
+                            <input type="password" id="signup-password" placeholder="••••••••" minlength="6" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">
+                            Register Account <i class="fa-solid fa-user-plus"></i>
+                        </button>
+                        <p class="auth-toggle">
+                            Already have an account? <a href="#" id="go-to-login">Sign in</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. Core Dashboard Screen -->
+        <section id="dashboard-section" class="view hidden">
+            <div class="dashboard-wrapper">
+                <!-- Sidebar Navigation -->
+                <aside class="sidebar">
+                    <div class="sidebar-header">
+                        <div class="brand" onclick="showLandingPage()" style="cursor: pointer;">
+                            <i class="fa-solid fa-bolt logo-icon"></i>
+                            <span class="brand-name">ApexFlow</span>
+                        </div>
+                    </div>
+                    <nav class="sidebar-nav">
+                        <button class="nav-btn active" data-target="tab-overview">
+                            <i class="fa-solid fa-chart-pie"></i> Overview
+                        </button>
+                        <button class="nav-btn" data-target="tab-subscriptions">
+                            <i class="fa-solid fa-rotate"></i> Subscriptions
+                        </button>
+                        <button class="nav-btn" data-target="tab-payments">
+                            <i class="fa-solid fa-wallet"></i> Payments
+                        </button>
+                        <button class="nav-btn" data-target="tab-invoices">
+                            <i class="fa-solid fa-file-invoice-dollar"></i> Invoices
+                        </button>
+                        <button class="nav-btn" data-target="tab-plans">
+                            <i class="fa-solid fa-tags"></i> Plan Manager
+                        </button>
+                        <button class="nav-btn org-only" data-target="tab-org-users">
+                            <i class="fa-solid fa-users-gear"></i> Team Members
+                        </button>
+                        <button class="nav-btn admin-only hidden" data-target="tab-organizations">
+                            <i class="fa-solid fa-building-shield"></i> Organizations
+                        </button>
+                        <button class="nav-btn admin-only hidden" data-target="tab-users">
+                            <i class="fa-solid fa-users-viewfinder"></i> All Users
+                        </button>
+                        <button class="nav-btn" data-target="tab-profile">
+                            <i class="fa-solid fa-user-gear"></i> Profile & Settings
+                        </button>
+                    </nav>
+                    <div class="sidebar-footer">
+                        <button id="btn-logout" class="btn btn-secondary btn-block btn-sm">
+                            <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                        </button>
+                    </div>
+                </aside>
+
+                <div class="main-content">
+                    <!-- Top Navbar -->
+                    <header class="top-navbar">
+                        <div class="navbar-left">
+                            <h2 id="current-tab-title">Overview Panel</h2>
+                        </div>
+                        <div class="navbar-right">
+                            <div class="user-profile-badge">
+                                <div class="avatar" id="avatar-circle">U</div>
+                                <div class="profile-info">
+                                    <span id="nav-user-name" class="name">User</span>
+                                    <span id="nav-user-role" class="role">Role</span>
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <!-- Main Dashboard Window -->
+                    <div class="dashboard-body">
+                        
+                        <!-- Tab: Overview -->
+                        <div id="tab-overview" class="tab-pane">
+                            <!-- Metrics Cards -->
+                            <div class="metrics-grid">
+                                <div class="metric-card glass">
+                                    <span class="label">Total Users</span>
+                                    <strong id="metric-users">0</strong>
+                                    <i class="fa-solid fa-users icon color-indigo"></i>
+                                </div>
+                                <div class="metric-card glass">
+                                    <span class="label">Active Subscriptions</span>
+                                    <strong id="metric-active-subs">0</strong>
+                                    <i class="fa-solid fa-circle-check icon color-emerald"></i>
+                                </div>
+                                <div class="metric-card glass">
+                                    <span class="label">Monthly Revenue</span>
+                                    <strong id="metric-revenue">$0.00</strong>
+                                    <i class="fa-solid fa-sack-dollar icon color-amber"></i>
+                                </div>
+                                <div class="metric-card glass">
+                                    <span class="label">Failed Payments</span>
+                                    <strong id="metric-failed-payments">0</strong>
+                                    <i class="fa-solid fa-triangle-exclamation icon color-rose"></i>
+                                </div>
+                            </div>
+
+                            <!-- Dashboard Charts (Chart.js) -->
+                            <div class="grid grid-2-cols margin-top-lg">
+                                <div class="card glass">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Monthly Revenue Stream</h3>
+                                    </div>
+                                    <div class="card-body chart-card-body">
+                                        <canvas id="revenueChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="card glass">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Subscription Distribution</h3>
+                                    </div>
+                                    <div class="card-body chart-card-body">
+                                        <canvas id="distributionChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Overview Recent Transactions Table -->
+                            <div class="card glass margin-top-lg">
+                                <div class="card-header">
+                                    <h3 class="card-title">Recent System Transactions</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Payment ID</th>
+                                                    <th>Date</th>
+                                                    <th>Gateway</th>
+                                                    <th>Amount</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="overview-payments-body">
+                                                <tr>
+                                                    <td colspan="5" class="text-center">No transactions available</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Subscriptions -->
+                        <div id="tab-subscriptions" class="tab-pane hidden">
+                            <div class="subscription-dashboard-grid">
+                                <!-- Users own subscriptions now -->
+                                <div class="card glass">
+                                    <div class="card-header">
+                                        <h3 class="card-title">My Active Subscriptions</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="subscriptions-list-container">
+                                            <!-- Subscriptions injected here -->
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card glass">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Purchase Plan Upgrade</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="plans-purchase-grid" id="plans-purchase-grid">
+                                            <!-- Available plans loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Payments -->
+                        <div id="tab-payments" class="tab-pane hidden">
+                            <div class="card glass">
+                                <div class="card-header">
+                                    <h3 class="card-title">Transaction Statement Logs</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Payment ID</th>
+                                                    <th>Date</th>
+                                                    <th>Currency</th>
+                                                    <th>Amount</th>
+                                                    <th>Gateway</th>
+                                                    <th>Status</th>
+                                                    <th>Transaction ID</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="payments-table-body">
+                                                <!-- Loaded dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Invoices -->
+                        <div id="tab-invoices" class="tab-pane hidden">
+                            <div class="card glass">
+                                <div class="card-header">
+                                    <h3 class="card-title">Billing Invoices & Receipts</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Invoice No</th>
+                                                    <th>Date</th>
+                                                    <th>Sub ID</th>
+                                                    <th>Amount</th>
+                                                    <th>Status</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="invoices-table-body">
+                                                <!-- Loaded dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Plan Manager (CRUD) -->
+                        <div id="tab-plans" class="tab-pane hidden">
+                            <div class="grid grid-3-cols no-gap">
+                                <div class="card glass col-span-2">
+                                    <div class="card-header">
+                                        <h3 class="card-title">System Pricing Packages</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="table-responsive">
+                                            <table class="data-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Name</th>
+                                                        <th>Type</th>
+                                                        <th>Price</th>
+                                                        <th>Duration</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="plans-table-body">
+                                                    <!-- Loaded dynamically -->
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card glass">
+                                    <div class="card-header">
+                                        <h3 class="card-title" id="plan-form-title">Create New Plan</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <form id="plan-crud-form">
+                                            <input type="hidden" id="plan-crud-id">
+                                            <div class="form-group">
+                                                <label for="plan-crud-name">Plan Name</label>
+                                                <input type="text" id="plan-crud-name" placeholder="e.g. Pro Suite" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="plan-crud-type">Plan Type</label>
+                                                <select id="plan-crud-type" required>
+                                                    <option value="Free">Free</option>
+                                                    <option value="Starter">Starter</option>
+                                                    <option value="Pro">Pro</option>
+                                                    <option value="Enterprise">Enterprise</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="plan-crud-price">Price ($ USD)</label>
+                                                <input type="number" id="plan-crud-price" step="0.01" min="0" required>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="plan-crud-duration">Billing Duration</label>
+                                                <select id="plan-crud-duration" required>
+                                                    <option value="monthly">Monthly</option>
+                                                    <option value="yearly">Yearly</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="plan-crud-features">Features (Comma separated)</label>
+                                                <input type="text" id="plan-crud-features" placeholder="24/7 support, SSL, APIs">
+                                            </div>
+                                            <button type="submit" class="btn btn-indigo btn-block" id="btn-plan-submit">
+                                                Publish Plan
+                                            </button>
+                                            <button type="button" class="btn btn-secondary btn-block margin-top-sm hidden" id="btn-plan-cancel" onclick="resetPlanForm()">
+                                                Cancel Edit
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Team Members (Organization-specific Users) -->
+                        <div id="tab-org-users" class="tab-pane hidden">
+                            <div class="card glass">
+                                <div class="card-header">
+                                    <h3 class="card-title">Manage Team</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>User ID</th>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Role</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="org-users-table-body">
+                                                <!-- Loaded dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Organizations (Super Admin View) -->
+                        <div id="tab-organizations" class="tab-pane hidden">
+                            <div class="card glass">
+                                <div class="card-header">
+                                    <h3 class="card-title">Registered SaaS Tenants</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Organization Name</th>
+                                                    <th>Created At</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="orgs-table-body">
+                                                <!-- Loaded dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Users (Super Admin View) -->
+                        <div id="tab-users" class="tab-pane hidden">
+                            <div class="card glass">
+                                <div class="card-header">
+                                    <h3 class="card-title">System Accounts Registry</h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="data-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Name</th>
+                                                    <th>Email</th>
+                                                    <th>Role</th>
+                                                    <th>Organization</th>
+                                                    <th>Status</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="users-table-body">
+                                                <!-- Loaded dynamically -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab: Profile & Settings -->
+                        <div id="tab-profile" class="tab-pane hidden">
+                            <div class="grid grid-2-cols">
+                                <div class="card glass">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Account Profiles</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="profile-details">
+                                            <div class="profile-row">
+                                                <span class="label">Name:</span>
+                                                <span class="value" id="prof-name">-</span>
+                                            </div>
+                                            <div class="profile-row">
+                                                <span class="label">Email Address:</span>
+                                                <span class="value" id="prof-email">-</span>
+                                            </div>
+                                            <div class="profile-row">
+                                                <span class="label">Security Role:</span>
+                                                <span class="value badge badge-info" id="prof-role">-</span>
+                                            </div>
+                                            <div class="profile-row">
+                                                <span class="label">Company Tenant:</span>
+                                                <span class="value" id="prof-org">-</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card glass">
+                                    <div class="card-header">
+                                        <h3 class="card-title">Portal Settings</h3>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-secondary" style="font-size: 0.875rem;">Manage security keys, configure webhooks, or customize invoice layouts.</p>
+                                        <div class="form-group margin-top-md">
+                                            <label>Auto-Renew default setting</label>
+                                            <select class="form-control" style="width: 100%;">
+                                                <option>Enabled</option>
+                                                <option>Disabled</option>
+                                            </select>
+                                        </div>
+                                        <button class="btn btn-primary btn-sm margin-top-sm">Save Preferences</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulated Checkout Modal -->
+        <div id="checkout-modal" class="modal hidden">
+            <div class="modal-backdrop" onclick="closeCheckoutModal()"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Simulate Payment Gateways</h3>
+                    <button class="modal-close" onclick="closeCheckoutModal()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="checkout-summary-card">
+                        <div class="summary-row">
+                            <span>Selected Upgrade Plan:</span>
+                            <strong id="checkout-plan-name">Pro Package</strong>
+                        </div>
+                        <div class="summary-row">
+                            <span>Price Due:</span>
+                            <strong id="checkout-plan-price" class="color-indigo">$49.00</strong>
+                        </div>
+                    </div>
+                    
+                    <form id="checkout-form" class="margin-top-md">
+                        <input type="hidden" id="checkout-plan-id">
+                        
+                        <div class="form-group">
+                            <label>Choose Payment Provider</label>
+                            <div class="payment-method-selector">
+                                <label class="method-option">
+                                    <input type="radio" name="paymentGateway" value="STRIPE" checked>
+                                    <span class="method-box">
+                                        <i class="fa-brands fa-stripe" style="font-size: 1.5rem;"></i> Stripe
+                                    </span>
+                                </label>
+                                <label class="method-option">
+                                    <input type="radio" name="paymentGateway" value="PAYPAL">
+                                    <span class="method-box">
+                                        <i class="fa-brands fa-paypal" style="font-size: 1.25rem;"></i> PayPal
+                                    </span>
+                                </label>
+                                <label class="method-option">
+                                    <input type="radio" name="paymentGateway" value="RAZORPAY">
+                                    <span class="method-box">
+                                        <i class="fa-solid fa-wallet"></i> Razorpay
+                                    </span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-2-cols no-gap">
+                            <div class="form-group margin-right-sm">
+                                <label for="checkout-currency">Currency</label>
+                                <select id="checkout-currency">
+                                    <option value="USD">USD ($)</option>
+                                    <option value="INR">INR (₹)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="checkout-billing-cycle">Billing Cycle</label>
+                                <select id="checkout-billing-cycle">
+                                    <option value="monthly">Monthly</option>
+                                    <option value="yearly">Yearly</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" id="checkout-autorenew" checked>
+                                <span>Enable subscription auto-renewal</span>
+                            </label>
+                        </div>
+
+                        <div class="simulation-alert">
+                            <i class="fa-solid fa-circle-info"></i>
+                            Select "Simulate Success" to approve charges and generate paid invoices, or "Simulate Failure" to declaim payment.
+                        </div>
+
+                        <div class="grid grid-2-cols checkout-buttons">
+                            <button type="button" class="btn btn-success" onclick="processCheckout(true)">
+                                <i class="fa-solid fa-circle-check"></i> Simulate Success
+                            </button>
+                            <button type="button" class="btn btn-danger" onclick="processCheckout(false)">
+                                <i class="fa-solid fa-circle-xmark"></i> Simulate Failure
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Receipt Print modal -->
+        <div id="invoice-modal" class="modal hidden">
+            <div class="modal-backdrop" onclick="closeInvoiceModal()"></div>
+            <div class="modal-content invoice-modal-content">
+                <div class="modal-header">
+                    <h3>Invoice Receipt</h3>
+                    <button class="modal-close" onclick="closeInvoiceModal()">&times;</button>
+                </div>
+                <div class="modal-body" id="invoice-print-area">
+                    <!-- Invoice content generated dynamically -->
+                </div>
+                <div class="modal-footer text-right">
+                    <button class="btn btn-secondary" onclick="printInvoice()">
+                        <i class="fa-solid fa-print"></i> Print Invoice
+                    </button>
+                    <button class="btn btn-primary" onclick="closeInvoiceModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application Script -->
+    <script src="app.js"></script>
+</body>
+</html>
